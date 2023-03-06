@@ -1,10 +1,11 @@
 defmodule LogServer.Query.FileParser do
   @moduledoc false
-  alias LogServer.CustomInteger
+  alias LogServer.{CustomInteger, Tools}
   alias LogServer.Pipeline.{Transformer}
+
   @buffer_reader_size 100 * 1024 # 100KB
   def parse(path, :metadata_file) do
-    [_cache, project, time_shard, _metadata_file, key_shard] = Path.split(path)
+    [_cache, project, time_shard, _metadata_file, key_shard] = Tools.split_storage_path(path)
     body_path = Path.join([project, time_shard, "body_file", key_shard])
     path
     |> File.open!([{:read_ahead, @buffer_reader_size}])

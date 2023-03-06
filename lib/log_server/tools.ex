@@ -26,4 +26,10 @@ defmodule LogServer.Tools do
     NaiveDateTime.utc_now
     |> NaiveDateTime.truncate(:second)
   end
+
+  def split_storage_path(path) do
+    if System.get_env("DEV"),
+      do: Path.split(path),
+      else: Path.split(path) |> Enum.drop(2)
+  end
 end

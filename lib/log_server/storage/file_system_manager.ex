@@ -79,14 +79,14 @@ defmodule LogServer.Storage.FileSystemManager do
     # khi đường dẫn đã bị xoá split ra chỉ còn 2 phần tử thì đã delete đến
     # thư mục ngay dưới thư mục root("cache") nên cần phải dừng lại chứ ko được
     # xoá thư mục root
-    if length(Path.split(path_deleted)) == 2 do
+    if length(Tools.split_storage_path(path_deleted)) == 2 do
       :ok
     else
       paths_deleted
       |> Enum.reduce([], fn path_deleted, acc ->
         parent_folder_path =
           path_deleted
-          |> Path.split()
+          |> Tools.split_storage_path()
           |> List.delete_at(-1)
           |> Path.join()
 

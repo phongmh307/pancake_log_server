@@ -8,7 +8,7 @@ defmodule LogServer.Storage.S3 do
     body_file_paths = list_files_in_path(Path.join(storage_path, "body_file"))
     metadata_file_paths ++ body_file_paths
     |> Task.async_stream(fn path ->
-      [_buffer_area | path_identity] = Path.split(path)
+      [_buffer_area | path_identity] = Tools.split_storage_path(path)
       path
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(@bucket, Path.join(path_identity))

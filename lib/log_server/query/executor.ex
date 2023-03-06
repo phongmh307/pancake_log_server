@@ -4,7 +4,7 @@ defmodule LogServer.Query.Executor do
   alias LogServer.Pipeline.Transformer
   alias LogServer.Query.{Step, FileParser}
   alias LogServer.Pipeline.{Loader}
-  alias LogServer.{TaskManager, Storage}
+  alias LogServer.{TaskManager, Storage, Tools}
   alias LogServer.Storage.MetadataCache
   require Logger
 
@@ -74,7 +74,7 @@ defmodule LogServer.Query.Executor do
     params: %{metadata_dest_paths: metadata_dest_paths}
   }) do
     Task.async_stream(metadata_dest_paths, fn metadata_dest_path ->
-      [_data_folder | metadata_path] = Path.split(metadata_dest_path)
+      [_data_folder | metadata_path] = Tools.split_storage_path(metadata_dest_path)
       {
         metadata_path,
         FileParser.parse(metadata_dest_path, :metadata_file)

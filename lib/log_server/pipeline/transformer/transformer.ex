@@ -41,6 +41,7 @@ defmodule LogServer.Pipeline.Transformer do
 
   alias LogServer.CustomInteger
   alias LogServer.Pipeline.Transformer.RawFileParser
+  alias LogServer.Tools
 
   @buffer_reader_size 100 * 1024 # 100KB
   @buffer_writer_size 100 * 1024 # 100KB
@@ -76,13 +77,13 @@ defmodule LogServer.Pipeline.Transformer do
   defp find_storage_path(paths) do
     path_uniq_by_time_shard =
       Enum.uniq_by(paths, fn path ->
-        [_buffer_area, project, time_shard, _raw_file, _file_name] = Path.split(path)
+        [_buffer_area, project, time_shard, _raw_file, _file_name] = Tools.split_storage_path(path)
         {project, time_shard}
       end)
 
     case path_uniq_by_time_shard do
       [path] ->
-        [buffer_area, project, time_shard, _raw_file, _file_name] = Path.split(path)
+        [buffer_area, project, time_shard, _raw_file, _file_name] = Tools.split_storage_path(path)
         Path.join([buffer_area, project, time_shard])
       _ -> raise ArgumentError, "expected paths from one project, one time_shard"
     end

@@ -1,5 +1,6 @@
 defmodule LogServer.Storage do
   @moduledoc false
+  alias LogServer.Tools
   alias LogServer.Storage.S3
   alias LogServer.Storage.MetadataCache
   @cache_folder(
@@ -13,7 +14,7 @@ defmodule LogServer.Storage do
   end
 
   def download(storage_path) do
-    [project, time_shard, type_file, key_shard] = Path.split(storage_path)
+    [project, time_shard, type_file, key_shard] = Tools.split_storage_path(storage_path)
     dest_path =
       [@cache_folder]
       |> Kernel.++([project, time_shard, type_file, key_shard])
