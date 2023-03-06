@@ -16,7 +16,8 @@ defmodule LogServer.Application do
       LogServer.Scheduler,
       LogServer.TaskManager,
       LogServer.Storage.FileSystemManager,
-      LogServer.Pipeline.Extractor.Client
+      LogServer.Pipeline.Extractor.Client,
+      LogServer.Storage.MetadataCache
     ]
     opts = [strategy: :one_for_one, name: LogServer.Supervisor]
     Supervisor.start_link(children, opts)

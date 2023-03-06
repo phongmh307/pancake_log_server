@@ -1,6 +1,6 @@
 defmodule LogServer.Storage.S3 do
   @moduledoc false
-  alias LogServer.Storage.FileSystemManager
+  alias LogServer.Storage.{FileSystemManager, MetadataCache}
   @bucket if System.get_env("DEV"), do: "pancake_log_server.dev", else: "pancake_log_server.prod"
   @hour 60 * 60
   def upload(storage_path) do
@@ -13,6 +13,8 @@ defmodule LogServer.Storage.S3 do
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload(@bucket, Path.join(path_identity))
       |> ExAws.request()
+
+      MetadataCache.invalidate(path_identity)
     end)
     |> Stream.run()
   end

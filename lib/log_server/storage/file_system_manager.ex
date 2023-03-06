@@ -17,7 +17,6 @@ defmodule LogServer.Storage.FileSystemManager do
       |> Tools.ecto_datetime_to_unix
 
     :ets.insert(@file_system_ttl, {dest_path, expired_at})
-    |> IO.inspect(label: "result 123")
   end
 
   def purging_expired_cache() do

@@ -67,6 +67,7 @@ defmodule LogServer.Pipeline.Transformer do
     end, timeout: :infinity)
     |> Stream.run()
 
+    clear_empty_files_after_transform(storage_path)
     storage_path
   end
 
@@ -156,6 +157,26 @@ defmodule LogServer.Pipeline.Transformer do
       IO.binwrite(metadata_device, finished_metadata_log)
     end)
     |> Stream.run()
+  end
+
+  defp clear_empty_files_after_transform(storage_path) do
+    metadata_devices =
+      @total_key_shard_number
+      |> generate_key_shards()
+      |> Enum.each(fn key_shard ->
+        metadata_path = generate_metadata_path(storage_path, key_shard)
+        if File.read!(metadata_path) == "",
+          do: File.rm_rf!(metadata_path)
+      end)
+
+    body_devices =
+      @total_key_shard_number
+      |> generate_key_shards()
+      |> Enum.map(fn key_shard ->
+        body_path = generate_body_path(storage_path, key_shard)
+        if File.read!(body_path) == "",
+          do: File.rm_rf!(body_path)
+      end)
   end
 
   def binaries_to_decimal(binaries) do

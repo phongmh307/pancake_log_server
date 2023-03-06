@@ -21,4 +21,9 @@ defmodule LogServer.Tools do
     |> :calendar.datetime_to_gregorian_seconds
     |> Kernel.-(@epoch)
   end
+
+  def naive_utc_now_second do
+    NaiveDateTime.utc_now
+    |> NaiveDateTime.truncate(:second)
+  end
 end

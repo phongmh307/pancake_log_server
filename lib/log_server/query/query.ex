@@ -18,6 +18,7 @@ defmodule LogServer.Query do
   alias LogServer.Pipeline.{Transformer, Loader}
   alias LogServer.Pipeline
   alias LogServer.Query.Executor
+  alias LogServer.Storage.MetadataCache
   require Logger
 
   def query(query_struct) do
@@ -65,7 +66,7 @@ defmodule LogServer.Query do
           metadata_passed: :loading,
           body_storage_paths: :loading
         }
-      }, # done
+      },
       %Step{
         action: :query_body_and_rebuild_raw_log,
         params: %{

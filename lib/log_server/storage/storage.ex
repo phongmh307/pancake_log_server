@@ -1,6 +1,7 @@
 defmodule LogServer.Storage do
   @moduledoc false
   alias LogServer.Storage.S3
+  alias LogServer.Storage.MetadataCache
   @cache_folder(
     if System.get_env("DEV"),
       do: "cache",
@@ -28,6 +29,5 @@ defmodule LogServer.Storage do
 
       S3.download(storage_path, dest_path)
     end
-    |> IO.inspect(label: "path123")
   end
 end

@@ -42,7 +42,7 @@ defmodule LogServer.MixProject do
             do: "git@github.com:Goose97/pancake-log.git",
             else: "https://github.com/Goose97/pancake-log.git"
         ),
-        ref: "55f5b776907579b848b403d4fa7c057ef76cc9ea"
+        ref: "90ccf7a4cd13d65329a3d0b0df1acc911c59e157"
       },
       {:faker, "~> 0.17", only: :test},
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},

@@ -1,9 +1,11 @@
 defmodule LogServer.Query.Executor do
   @moduledoc false
+  alias ElixirSense.Core.Metadata
   alias LogServer.Pipeline.Transformer
   alias LogServer.Query.{Step, FileParser}
   alias LogServer.Pipeline.{Loader}
   alias LogServer.{TaskManager, Storage}
+  alias LogServer.Storage.MetadataCache
   require Logger
 
   @timestamp_field "timestamp"
@@ -72,9 +74,17 @@ defmodule LogServer.Query.Executor do
     params: %{metadata_dest_paths: metadata_dest_paths}
   }) do
     Task.async_stream(metadata_dest_paths, fn metadata_dest_path ->
-      FileParser.parse(metadata_dest_path, :metadata_file)
+      [_data_folder | metadata_path] = Path.split(metadata_dest_path)
+      {
+        metadata_path,
+        FileParser.parse(metadata_dest_path, :metadata_file)
+      }
     end, timeout: 10000)
-    |> Enum.reduce([], fn {:ok, metadata_content}, acc ->
+    |> Enum.reduce([], fn {:ok, {metadata_path, metadata_content}}, acc ->
+      MetadataCache.set(
+        Path.join(metadata_path),
+        metadata_content
+      )
       acc ++ metadata_content
     end)
   end
