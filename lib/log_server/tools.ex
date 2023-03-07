@@ -37,9 +37,14 @@ defmodule LogServer.Tools do
   end
 
   def join_storage_path(parts) when is_list(parts) do
-    if System.get_env("DEV"),
-      do: Path.join(parts),
-      else: Path.join(@prefix_storage_path ++ parts)
+    if System.get_env("DEV") do
+      Path.join(parts)
+    else
+      [first, second | _rest] = parts |> IO.inspect(label: "cu dam toi thuong")
+      if (first == ".." and second == "data") or String.contains?(first, "../data"),
+        do: Path.join(parts),
+        else: Path.join([@prefix_storage_path | parts])
 
+    end
   end
 end

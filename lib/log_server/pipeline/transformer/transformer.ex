@@ -77,7 +77,7 @@ defmodule LogServer.Pipeline.Transformer do
   defp find_storage_path(paths) do
     path_uniq_by_time_shard =
       Enum.uniq_by(paths, fn path ->
-        [_buffer_area, project, time_shard, _raw_file, _file_name] = Tools.split_storage_path(path)
+        [_buffer_area, project, time_shard, _raw_file, _file_name] = Tools.split_storage_path(path) |> IO.inspect(label: "test123")
         {project, time_shard}
       end)
 

@@ -41,9 +41,9 @@ defmodule LogServer.Pipeline do
 
   defp setup_buffer_area(project, shard_time) do
     clear_buffer_area(project, shard_time)
-    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "raw_file"]))
-    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "metadata_file"]))
-    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "body_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "raw_file"]) |> IO.inspect(label: "oi gioi oi"))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "metadata_file"]) |> IO.inspect(label: "oi gioi oi"))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "body_file"]) |> IO.inspect(label: "oi gioi oi"))
   end
 
   def to_shard_time(time) do
