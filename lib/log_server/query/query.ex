@@ -16,7 +16,7 @@ defmodule LogServer.Query do
   ]
 
   alias LogServer.Pipeline.{Transformer, Loader}
-  alias LogServer.Pipeline
+  alias LogServer.{Pipeline, Tools}
   alias LogServer.Query.Executor
   alias LogServer.Storage.MetadataCache
   require Logger
@@ -97,9 +97,9 @@ defmodule LogServer.Query do
           {true, paths} <-
             (
               time_shards_load = apply(__MODULE__, :to_time_shards_load, params[:time_shard])
-              {length(time_shards_load) != 0, Enum.map(time_shards_load, & Path.join(path, &1))}
+              {length(time_shards_load) != 0, Enum.map(time_shards_load, & Tools.join_storage_path([path, &1]))}
             ),
-          paths <- Enum.map(paths, & Path.join([&1, "metadata_file", params[:key_shard]]))
+          paths <- Enum.map(paths, & Tools.join_storage_path([&1, "metadata_file", params[:key_shard]]))
     do
       paths
     else

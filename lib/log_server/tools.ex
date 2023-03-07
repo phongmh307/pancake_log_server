@@ -27,9 +27,19 @@ defmodule LogServer.Tools do
     |> NaiveDateTime.truncate(:second)
   end
 
+  # trên server thư mục lưu trữ data phải để riêng nên khác đường dẫn với
+  # khi dev trên local()
+  @prefix_storage_path ["..", "data"]
   def split_storage_path(path) do
     if System.get_env("DEV"),
       do: Path.split(path),
       else: Path.split(path) |> Enum.drop(2)
+  end
+
+  def join_storage_path(parts) when is_list(parts) do
+    if System.get_env("DEV"),
+      do: Path.join(parts),
+      else: Path.join(@prefix_storage_path ++ parts)
+
   end
 end

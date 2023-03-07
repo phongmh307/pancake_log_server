@@ -18,14 +18,14 @@ defmodule LogServer.Storage do
     dest_path =
       [@cache_folder]
       |> Kernel.++([project, time_shard, type_file, key_shard])
-      |> Path.join()
+      |> Tools.join_storage_path()
 
     if File.exists?(dest_path) do
       {:ok, dest_path}
     else
       [@cache_folder]
       |> Kernel.++([project, time_shard, type_file])
-      |> Path.join()
+      |> Tools.join_storage_path()
       |> File.mkdir_p!()
 
       S3.download(storage_path, dest_path)

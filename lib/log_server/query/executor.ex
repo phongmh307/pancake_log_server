@@ -82,7 +82,7 @@ defmodule LogServer.Query.Executor do
     end, timeout: 10000)
     |> Enum.reduce([], fn {:ok, {metadata_path, metadata_content}}, acc ->
       MetadataCache.set(
-        Path.join(metadata_path),
+        Tools.join_storage_path(metadata_path),
         metadata_content
       )
       acc ++ metadata_content
@@ -143,7 +143,7 @@ defmodule LogServer.Query.Executor do
       # log_content, log_counter
       {"", 1},
       fn %{body_path: body_path, body_position: {body_offset, body_length}, metadata: metadata}, {log_content, log_count} = acc ->
-        if io_device = pair_path_device[Path.join(@cache_folder, body_path)] do
+        if io_device = pair_path_device[Tools.join_storage_path([@cache_folder, body_path])] do
           {:ok, body} = :file.pread(io_device, body_offset, body_length)
           metadata_layout =
             metadata

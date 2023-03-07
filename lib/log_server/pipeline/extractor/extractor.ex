@@ -6,6 +6,7 @@ defmodule LogServer.Pipeline.Extractor do
   """
   require Logger
   alias LogServer.Pipeline.Extractor.Client
+  alias LogServer.Tools
   @storage_folder (
     if System.get_env("DEV"),
       do: "buffer_area",
@@ -38,12 +39,12 @@ defmodule LogServer.Pipeline.Extractor do
   # Tạo các thư mục có nhiệm vụ lưu trữ các file raw cũng như các file
   # đã được transfer về đúng cấu trúc trước khi upload lên storage
   defp setup_buffer_area(shard_time) do
-    File.rm_rf!(Path.join([@storage_folder, shard_time, "raw_file"]))
-    File.rm_rf!(Path.join([@storage_folder, shard_time, "metadata_file"]))
-    File.rm_rf!(Path.join([@storage_folder, shard_time, "body_file"]))
-    File.mkdir_p!(Path.join([@storage_folder, shard_time, "raw_file"]))
-    File.mkdir_p!(Path.join([@storage_folder, shard_time, "metadata_file"]))
-    File.mkdir_p!(Path.join([@storage_folder, shard_time, "body_file"]))
+    File.rm_rf!(Tools.join_storage_path([@storage_folder, shard_time, "raw_file"]))
+    File.rm_rf!(Tools.join_storage_path([@storage_folder, shard_time, "metadata_file"]))
+    File.rm_rf!(Tools.join_storage_path([@storage_folder, shard_time, "body_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, shard_time, "raw_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, shard_time, "metadata_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, shard_time, "body_file"]))
   end
 
   def collect_log(%Client{
@@ -51,7 +52,7 @@ defmodule LogServer.Pipeline.Extractor do
     port: client_port,
     project: client_project
   }, log_indentity) do
-    local_path = Path.join([@storage_folder, client_project, log_indentity, "raw_file", "#{client_host}:#{client_port}"])
+    local_path = Tools.join_storage_path([@storage_folder, client_project, log_indentity, "raw_file", "#{client_host}:#{client_port}"])
     stream = File.stream!(local_path)
     try do
       "http://#{client_host}:#{client_port}/#{log_indentity}"

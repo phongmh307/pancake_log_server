@@ -1,6 +1,7 @@
 defmodule LogServer.Pipeline do
   @moduledoc false
   alias LogServer.Pipeline.{Extractor, Extractor.Client, Transformer, Loader}
+  alias LogServer.Tools
   @shard_interval 600
   @storage_folder (
     if System.get_env("DEV"),
@@ -34,14 +35,15 @@ defmodule LogServer.Pipeline do
   end
 
   defp clear_buffer_area(project, shard_time) do
-    File.rm_rf!(Path.join([@storage_folder, project, shard_time]))
+    Tools.join_storage_path([@storage_folder, project, shard_time])
+    |> File.rm_rf!
   end
 
   defp setup_buffer_area(project, shard_time) do
     clear_buffer_area(project, shard_time)
-    File.mkdir_p!(Path.join([@storage_folder, project, shard_time, "raw_file"]))
-    File.mkdir_p!(Path.join([@storage_folder, project, shard_time, "metadata_file"]))
-    File.mkdir_p!(Path.join([@storage_folder, project, shard_time, "body_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "raw_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "metadata_file"]))
+    File.mkdir_p!(Tools.join_storage_path([@storage_folder, project, shard_time, "body_file"]))
   end
 
   def to_shard_time(time) do

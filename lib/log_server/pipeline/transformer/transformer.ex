@@ -84,7 +84,7 @@ defmodule LogServer.Pipeline.Transformer do
     case path_uniq_by_time_shard do
       [path] ->
         [buffer_area, project, time_shard, _raw_file, _file_name] = Tools.split_storage_path(path)
-        Path.join([buffer_area, project, time_shard])
+        Tools.join_storage_path([buffer_area, project, time_shard])
       _ -> raise ArgumentError, "expected paths from one project, one time_shard"
     end
   end
@@ -253,10 +253,10 @@ defmodule LogServer.Pipeline.Transformer do
   end
 
   defp generate_body_path(storage_path, key_shard),
-    do: Path.join([storage_path, "body_file", to_string(key_shard)])
+    do: Tools.join_storage_path([storage_path, "body_file", to_string(key_shard)])
 
   defp generate_metadata_path(storage_path, key_shard),
-    do: Path.join([storage_path, "metadata_file", to_string(key_shard)])
+    do: Tools.join_storage_path([storage_path, "metadata_file", to_string(key_shard)])
 
   defp generate_key_shards(total_shard) do
     1..total_shard
