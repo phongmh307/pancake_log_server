@@ -20,7 +20,7 @@ defmodule LogServer.Pipeline do
     |> Transformer.transform()
     |> Loader.upload()
 
-    Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
+    # Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
   end
 
   # Thống nhất file name này với Log Client

@@ -23,21 +23,24 @@ defmodule LogServer.Query.FileParser do
           metadata_length <-
             (
               case IO.binread(io_device, 2) do
-                :eof -> raise "error"
+                :eof ->
+                  raise RuntimeError, message: "#{__MODULE__}: got eof at metadata_length"
                 binaries -> Transformer.binaries_to_decimal(binaries)
               end
             ),
           body_offset <-
             (
               case CustomInteger.decode(io_device) do
-                nil -> raise "error"
+                nil ->
+                  raise RuntimeError, message: "#{__MODULE__}: got eof at body_offset"
                 result -> result
               end
             ),
           metadata_content <-
             (
               case IO.binread(io_device, metadata_length) do
-                :eof -> raise "error"
+                :eof ->
+                  raise RuntimeError, message: "#{__MODULE__}: got eof at metadata_content"
                 binaries -> Transformer.parse_content_metadata_binaries(binaries)
               end
             )
@@ -58,8 +61,4 @@ defmodule LogServer.Query.FileParser do
       :done -> acc
     end
   end
-
-  # def parse(path, :body_file) do
-
-  # end
 end

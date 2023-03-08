@@ -10,10 +10,14 @@ defmodule LogServer.Storage.S3 do
     metadata_file_paths ++ body_file_paths
     |> Task.async_stream(fn path ->
       [_buffer_area | path_identity] = Tools.split_storage_path(path)
-      IO.inspect(path_identity, label: "path_identity123")
+      path_identity =
+        path_identity
+        |> Tools.join_storage_path
+        |> format_path_by_env(System.get_env("DEV"))
+
       path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload(@bucket, Tools.join_storage_path(path_identity))
+      |> ExAws.S3.upload(@bucket, path_identity)
       |> ExAws.request()
 
       MetadataCache.invalidate(path_identity)
@@ -35,6 +39,7 @@ defmodule LogServer.Storage.S3 do
   end
 
   def download(storage_path, dest_path) do
+    storage_path = format_path_by_env(storage_path, System.get_env("DEV"))
     @bucket
     |> ExAws.S3.download_file(storage_path, dest_path)
     |> ExAws.request()
@@ -43,6 +48,18 @@ defmodule LogServer.Storage.S3 do
         FileSystemManager.set_ttl(dest_path, 3 * @hour)
         {:ok, dest_path}
       error -> error
+    end
+  end
+
+  defp format_path_by_env(path, env) do
+    if env == "dev" do
+      path
+    else
+      [first, second | _rest] = parts = Path.split(path)
+      if (first == ".." and second == "data") or String.contains?(first, "../data"),
+        do: parts |> Enum.drop(2) |> Path.join(),
+        else: path
+        # 1678173600_1678174200
     end
   end
 end

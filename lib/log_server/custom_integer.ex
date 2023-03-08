@@ -21,7 +21,7 @@ defmodule LogServer.CustomInteger do
       integer < 2 ** 28 -> <<0b1110::4, integer::28>>
       integer < 2 ** 35 -> <<0b11110::5, integer::35>>
       integer < 2 ** 42 -> <<0b111110::6, integer::42>>
-      true -> raise RuntimeError, nessage: "out of range 0..#{2 ** 42 - 1}"
+      true -> raise RuntimeError, message: "out of range 0..#{2 ** 42 - 1}"
     end
   end
 

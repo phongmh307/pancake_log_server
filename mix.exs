@@ -27,21 +27,13 @@ defmodule LogServer.MixProject do
       {:poison, "~> 5.0"},
       {:quantum, "~> 3.0"},
       {:http_stream,
-        git: (
-          if System.get_env("DEV"),
-            do: "git@github.com:taonhanvat/http_stream.git",
-            else: "https://github.com/taonhanvat/http_stream.git"
-        ),
+        git: "git@github.com:taonhanvat/http_stream.git",
         ref: "34a90018afaaeb8afd2e1a23e704245f895ecc11"
       },
       {:ex_aws_s3, "~> 2.4.0"},
       {:sweet_xml, "~> 0.7.3"},
       {:pancake_log,
-        git: (
-          if System.get_env("DEV"),
-            do: "git@github.com:Goose97/pancake-log.git",
-            else: "https://github.com/Goose97/pancake-log.git"
-        ),
+        git: "git@github.com:Goose97/pancake-log.git",
         ref: "90ccf7a4cd13d65329a3d0b0df1acc911c59e157"
       },
       {:faker, "~> 0.17", only: :test},

@@ -203,7 +203,7 @@ defmodule LogServer.Pipeline.Transformer do
     action =
       cond do
         byte_value == 0 -> :end_key_value
-        byte_value == 61 -> :end_key
+        byte_value == 1 -> :end_key
         tail == "" -> :end_metadata
         true -> :continue
       end
@@ -252,8 +252,9 @@ defmodule LogServer.Pipeline.Transformer do
     |> to_string()
   end
 
-  defp generate_body_path(storage_path, key_shard),
-    do: Tools.join_storage_path([storage_path, "body_file", to_string(key_shard)])
+  defp generate_body_path(storage_path, key_shard) do
+    Tools.join_storage_path([storage_path, "body_file", to_string(key_shard)])
+  end
 
   defp generate_metadata_path(storage_path, key_shard),
     do: Tools.join_storage_path([storage_path, "metadata_file", to_string(key_shard)])

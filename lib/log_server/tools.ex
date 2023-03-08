@@ -29,7 +29,6 @@ defmodule LogServer.Tools do
 
   # trên server thư mục lưu trữ data phải để riêng nên khác đường dẫn với
   # khi dev trên local()
-  @prefix_storage_path ["..", "data"]
   def split_storage_path(path) do
     if System.get_env("DEV"),
       do: Path.split(path),
@@ -43,7 +42,7 @@ defmodule LogServer.Tools do
       [first, second | _rest] = parts |> IO.inspect(label: "cu dam toi thuong")
       if (first == ".." and second == "data") or String.contains?(first, "../data"),
         do: Path.join(parts),
-        else: Path.join([@prefix_storage_path | parts])
+        else: Path.join(["..", "data" | parts])
 
     end
   end
