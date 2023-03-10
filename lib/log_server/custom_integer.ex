@@ -52,13 +52,13 @@ defmodule LogServer.CustomInteger do
 
   def decode(device) do
     mark_length_byte = IO.binread(device, 1)
-    case decode(mark_length_byte, :mark_length_byte) do
+    case decode(mark_length_byte, :mark_length_byte) |> IO.inspect(label: "mark length byte") do
       nil -> nil
       1 -> decode(mark_length_byte, :full)
       length ->
         content_binary =
           mark_length_byte
-          |> Kernel.<>(IO.binread(length - 1))
+          |> Kernel.<>(IO.binread(device, length - 1) |> IO.inspect(label: "some thing wrong"))
           |> decode(:full)
     end
   end

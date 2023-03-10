@@ -16,9 +16,13 @@ defmodule LogServer.Pipeline do
     Enum.each(projects, & setup_buffer_area(&1.project, shard_time))
 
     clients
-    |> Extractor.extract(shard_time)
-    |> Transformer.transform()
-    |> Loader.upload()
+    |> Enum.group_by(& &1.project)
+    |> Enum.each(fn {project, clients_in_project} ->
+      clients_in_project
+      |> Extractor.extract(shard_time)
+      |> Transformer.transform()
+      |> Loader.upload()
+    end)
 
     # Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
   end

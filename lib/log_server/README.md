@@ -6,5 +6,6 @@
   + feature ctrl C từ phía client
   + chunk response
   + viet docs
+  + bug open pipeline cho nhieu project
 # LOG CLIENT PROJECT:
   + xoa file o client sau khi pull thanh cong

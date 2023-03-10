@@ -39,7 +39,7 @@ defmodule LogServer.Tools do
     if System.get_env("DEV") do
       Path.join(parts)
     else
-      [first, second | _rest] = parts |> IO.inspect(label: "cu dam toi thuong")
+      [first, second | _rest] = parts
       if (first == ".." and second == "data") or String.contains?(first, "../data"),
         do: Path.join(parts),
         else: Path.join(["..", "data" | parts])
