@@ -1,5 +1,8 @@
 defmodule LogServer.Pipeline do
-  @moduledoc false
+  @moduledoc """
+  Documentation for Pipeline
+
+  """
   alias LogServer.Pipeline.{Extractor, Extractor.Client, Transformer, Loader}
   alias LogServer.Tools
   @shard_interval 600
@@ -24,7 +27,7 @@ defmodule LogServer.Pipeline do
       |> Loader.upload()
     end)
 
-    # Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
+    Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
   end
 
   # Thống nhất file name này với Log Client

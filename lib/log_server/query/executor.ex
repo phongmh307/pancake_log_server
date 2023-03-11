@@ -142,13 +142,23 @@ defmodule LogServer.Query.Executor do
       metadata_passed,
       # log_content, log_counter
       {"", 1},
-      fn %{body_path: body_path, body_position: {body_offset, body_length}, metadata: metadata}, {log_content, log_count} = acc ->
-        if io_device = pair_path_device[Tools.join_storage_path([@cache_folder, body_path])] do
+      fn %{
+        body_path: body_path,
+        body_position: {body_offset, body_length},
+        metadata: metadata
+      }, {log_content, log_count} = acc ->
+        body_dest_path =
+          body_path
+          |> Tools.split_storage_path()
+          |> List.insert_at(0, "cache")
+          |> Tools.join_storage_path()
+
+        if io_device = pair_path_device[body_dest_path] do
           {:ok, body} = :file.pread(io_device, body_offset, body_length)
           metadata_layout =
             metadata
             |> Map.delete("timestamp")
-            |> Enum.map_join(", ", fn {k, v} -> "#{k}: #{v}" end)
+            |> Enum.map_join(", ", fn {k, v} -> "#{k}=#{v}" end)
 
           {
             log_content

@@ -13,19 +13,12 @@ defmodule LogServer.Query.FileParser do
   end
 
   defp do_parse(io_device, body_path, :metadata, acc \\ []) do
-    with  body_length when body_length != :done <-
+    with  {body_length, metadata_length} <-
             (
-              case IO.binread(io_device, 4) do
+              case IO.binread(io_device, 6) do
                 :eof -> :done
-                binaries -> Transformer.binaries_to_decimal(binaries)
-              end
-            ),
-          metadata_length <-
-            (
-              case IO.binread(io_device, 2) do
-                :eof ->
-                  raise RuntimeError, message: "#{__MODULE__}: got eof at metadata_length"
-                binaries -> Transformer.binaries_to_decimal(binaries)
+                <<body_length::32, metadata_length::16>> ->
+                  {body_length, metadata_length}
               end
             ),
           body_offset <-
