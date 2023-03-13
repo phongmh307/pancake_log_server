@@ -234,21 +234,8 @@ defmodule LogServer.Pipeline.Transformer do
     do: @default_key_shard
 
   defp do_key_shard(key_shard) do
-    cond do
-      is_binary(key_shard) ->
-        case Integer.parse(key_shard) do
-          {key_shard, ""} -> key_shard
-          _ -> nil
-        end
-
-      is_integer(key_shard) -> key_shard
-      true -> nil
-    end
-    |> case do
-      nil -> @default_key_shard
-      key_shard_formatted ->
-        :erlang.phash2(key_shard_formatted, @total_key_shard_number)
-    end
+    key_shard
+    |> :erlang.phash2(@total_key_shard_number)
     |> to_string()
   end
 

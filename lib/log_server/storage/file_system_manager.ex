@@ -21,7 +21,7 @@ defmodule LogServer.Storage.FileSystemManager do
       |> NaiveDateTime.add(ttl)
       |> Tools.ecto_datetime_to_unix
 
-    :dets.insert(@file_system_ttl, {dest_path, expired_at})
+    :dets.insert(@file_system_ttl_table, {dest_path, expired_at})
   end
 
   def purging_expired_cache() do
@@ -62,7 +62,7 @@ defmodule LogServer.Storage.FileSystemManager do
         }
       ]
 
-    @file_system_ttl
+    @file_system_ttl_table
     |> :dets.select(match_spec)
     |> Enum.map(fn path ->
       File.rm_rf!(path)
@@ -70,7 +70,7 @@ defmodule LogServer.Storage.FileSystemManager do
     end)
     |> cleaning_empty_folder_after_delete_files()
 
-    :dets.select_delete(@file_system_ttl, match_spec_delete)
+    :dets.select_delete(@file_system_ttl_table, match_spec_delete)
     {:noreply, state}
   end
 

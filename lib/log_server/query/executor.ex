@@ -60,7 +60,7 @@ defmodule LogServer.Query.Executor do
       # Bắt buộc sử dụng TaskManager cho hàm load storage này vì bên trong hàm có thể xảy ra race-condition
       TaskManager.do_task({Storage, :download, [storage_path]})
       # Storage.download(storage_path)
-    end)
+    end, timeout: 20_000)
     |> Enum.reduce([], fn {:ok, result}, acc ->
       case result do
         {:ok, metadata_dest_path} -> acc ++ [metadata_dest_path]
