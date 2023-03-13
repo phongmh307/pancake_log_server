@@ -28,6 +28,7 @@ log_server-*.tar
 /test_log
 /cache
 /clients
+/file_system_ttl
 /dev.env
 .DS_Store
 .elixir_ls

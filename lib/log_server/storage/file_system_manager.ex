@@ -3,7 +3,12 @@ defmodule LogServer.Storage.FileSystemManager do
   use GenServer
   alias LogServer.Tools
 
-  @file_system_ttl :file_system_ttl
+  @file_system_ttl_table :file_system_ttl
+  @file_system_ttl (
+    if System.get_env("DEV"),
+      do: "file_system_ttl",
+      else: "../data/file_system_ttl"
+  )
   @min 60_000
 
   def start_link(_) do
@@ -16,7 +21,7 @@ defmodule LogServer.Storage.FileSystemManager do
       |> NaiveDateTime.add(ttl)
       |> Tools.ecto_datetime_to_unix
 
-    :ets.insert(@file_system_ttl, {dest_path, expired_at})
+    :dets.insert(@file_system_ttl, {dest_path, expired_at})
   end
 
   def purging_expired_cache() do
@@ -25,12 +30,10 @@ defmodule LogServer.Storage.FileSystemManager do
 
   @impl true
   def init([]) do
-    if :ets.whereis(@file_system_ttl) == :undefined do
-      spawn(fn ->
-        :ets.new(@file_system_ttl, [:named_table, :public])
-        Process.sleep(:infinity)
-      end)
-    end
+    :dets.open_file(
+      @file_system_ttl_table,
+      file: String.to_charlist(@file_system_ttl)
+    )
     :timer.apply_interval(@min, __MODULE__, :purging_expired_cache, [])
     {:ok, nil}
   end
@@ -60,14 +63,14 @@ defmodule LogServer.Storage.FileSystemManager do
       ]
 
     @file_system_ttl
-    |> :ets.select(match_spec)
+    |> :dets.select(match_spec)
     |> Enum.map(fn path ->
       File.rm_rf!(path)
       path
     end)
     |> cleaning_empty_folder_after_delete_files()
 
-    :ets.select_delete(@file_system_ttl, match_spec_delete)
+    :dets.select_delete(@file_system_ttl, match_spec_delete)
     {:noreply, state}
   end
 
