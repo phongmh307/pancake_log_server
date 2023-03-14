@@ -33,8 +33,8 @@ defmodule LogServer.MixProject do
       {:ex_aws_s3, "~> 2.4.0"},
       {:sweet_xml, "~> 0.7.3"},
       {:pancake_log,
-        git: "git@github.com:Goose97/pancake-log.git",
-        ref: "90ccf7a4cd13d65329a3d0b0df1acc911c59e157"
+        git: "git@github.com:taonhanvat/pancake-log-1.git",
+        ref: "d9b1345fc70602b36b72cfd4adbe15f727482277"
       },
       {:faker, "~> 0.17", only: :test},
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},

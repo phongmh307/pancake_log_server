@@ -37,12 +37,7 @@ defmodule LogServer.Query.Executor do
           filled_params = %{params | metadata_content: step_return_value}
           %{step | params: filled_params}
         did_action == :query_metadata and action == :load_body_storage ->
-          body_storage_paths =
-            step_return_value
-            |> Enum.uniq_by(& &1.body_path)
-            |> Enum.map(& &1.body_path)
-
-          filled_params = %{params | metadata_passed: step_return_value, body_storage_paths: body_storage_paths}
+          filled_params = %{params | metadata_passed: step_return_value}
           %{step | params: filled_params}
         did_action == :load_body_storage and action == :query_body_and_rebuild_raw_log ->
           filled_params = %{params | body_dest_paths: step_return_value, metadata_passed: did_step.params.metadata_passed}
@@ -87,6 +82,7 @@ defmodule LogServer.Query.Executor do
       )
       acc ++ metadata_content
     end)
+    |> IO.inspect(label: " parse metadata")
   end
 
   defp execute_step(%Step{
@@ -101,6 +97,7 @@ defmodule LogServer.Query.Executor do
         metadata[to_string(key)] == value
       end)
     end)
+    |> IO.inspect(label: "metadata content")
   end
 
   defp execute_step(%Step{
@@ -109,6 +106,7 @@ defmodule LogServer.Query.Executor do
   }) do
     Logger.debug("#{LogServer.Query}: Middle query, total body shard scan: #{length(body_storage_paths)}")
     Task.async_stream(body_storage_paths, fn storage_path ->
+      IO.inspect(storage_path, label: "storage_path123")
       # Bắt buộc sử dụng TaskManager cho hàm load storage này vì bên trong hàm có thể xảy ra race-condition
       TaskManager.do_task({Storage, :download, [storage_path]})
       # Storage.download(storage_path)
@@ -129,49 +127,46 @@ defmodule LogServer.Query.Executor do
   defp execute_step(%Step{
     action: :query_body_and_rebuild_raw_log,
     params: %{
-      metadata_passed: metadata_passed,
-      body_dest_paths: body_dest_paths
+      metadata_passed: metadata_passed
     }
   }) do
-    pair_path_device = Enum.reduce(body_dest_paths, %{}, fn body_dest_path, acc ->
-      io_device = File.open!(body_dest_path, [:read])
-      Map.put(acc, body_dest_path, io_device)
-    end)
-
-    {log_content, _} = Enum.reduce(
-      metadata_passed,
-      # log_content, log_counter
-      {"", 1},
-      fn %{
+    {log_content, _} =
+      metadata_passed
+      |> Task.async_stream(fn %{
         body_path: body_path,
-        body_position: {body_offset, body_length},
+        body_position: body_position,
         metadata: metadata
-      }, {log_content, log_count} = acc ->
-        body_dest_path =
-          body_path
-          |> Tools.split_storage_path()
-          |> List.insert_at(0, "cache")
-          |> Tools.join_storage_path()
-
-        if io_device = pair_path_device[body_dest_path] do
-          {:ok, body} = :file.pread(io_device, body_offset, body_length)
-          metadata_layout =
-            metadata
-            |> Map.delete("timestamp")
-            |> Enum.map_join(", ", fn {k, v} -> "#{k}=#{v}" end)
-
-          {
-            log_content
-            <> "#{metadata[@timestamp_field]} UTC [#{log_count}] "
-            <> "METADATA LOG: #{metadata_layout} || "
-            <> "BODY LOG: #{body} \n",
-            log_count + 1
-          }
-        else
-          acc
+      } ->
+        case Storage.download(
+          body_path,
+          dest_path: :memory,
+          bytes_range_fetches: body_position
+        ) do
+          {:ok, body} ->
+            {:ok, %{
+              metadata: metadata,
+              body: body
+            }}
+          error -> error
         end
-      end
-    )
+      end)
+      |> Enum.reduce({"", 1}, fn {:ok, result}, {log_content, log_count} = acc ->
+        case result do
+          {:ok, %{metadata: metadata, body: body}} ->
+            metadata_layout =
+              metadata
+              |> Map.delete("timestamp")
+              |> Enum.map_join(", ", fn {k, v} -> "#{k}=#{v}" end)
+            {
+              log_content
+              <> "#{metadata[@timestamp_field]} UTC [#{log_count}] "
+              <> "METADATA LOG: #{metadata_layout} || "
+              <> "BODY LOG: #{body}\n",
+              log_count + 1
+            }
+          {:error, _} -> acc
+        end
+      end)
 
     log_content
   end

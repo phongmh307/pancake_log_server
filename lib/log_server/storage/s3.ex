@@ -38,7 +38,7 @@ defmodule LogServer.Storage.S3 do
     |> Enum.map(& Tools.join_storage_path([path, &1]))
   end
 
-  def download(storage_path, dest_path) do
+  def download(storage_path, :file, dest_path: dest_path) do
     storage_path = format_path_by_env(storage_path, System.get_env("DEV"))
     @bucket
     |> ExAws.S3.download_file(storage_path, dest_path)
@@ -49,6 +49,19 @@ defmodule LogServer.Storage.S3 do
         {:ok, dest_path}
       error -> error
     end
+  end
+
+  def download(storage_path, :memory, bytes_range_fetches: {begin_byte, end_byte}) do
+    storage_path = format_path_by_env(storage_path, System.get_env("DEV"))
+    %{body: body} =
+      @bucket
+      |> ExAws.S3.get_object(
+        storage_path,
+        range: "bytes=#{begin_byte}-#{end_byte}"
+      )
+      |> ExAws.request!()
+
+    {:ok, body}
   end
 
   defp format_path_by_env(path, env) do

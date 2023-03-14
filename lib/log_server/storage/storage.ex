@@ -13,7 +13,14 @@ defmodule LogServer.Storage do
     S3.upload(storage_path)
   end
 
-  def download(storage_path) do
+  #output {:ok, path}
+  def download(storage_path, opts \\ []) do
+    dest_path = Keyword.get(opts, :dest_path, :file)
+    params = Keyword.delete(opts, :dest_path)
+    do_download(storage_path, dest_path, params)
+  end
+
+  defp do_download(storage_path, :file, _params) do
     [project, time_shard, type_file, key_shard] = Tools.split_storage_path(storage_path)
     dest_path =
       [@cache_folder]
@@ -28,7 +35,11 @@ defmodule LogServer.Storage do
       |> Tools.join_storage_path()
       |> File.mkdir_p!()
 
-      S3.download(storage_path, dest_path)
+      S3.download(storage_path, :file, dest_path: dest_path)
     end
+  end
+
+  defp do_download(storage_path, :memory, bytes_range_fetches: bytes_range_fetches) do
+    S3.download(storage_path, :memory, bytes_range_fetches: bytes_range_fetches)
   end
 end
