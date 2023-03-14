@@ -82,7 +82,6 @@ defmodule LogServer.Query.Executor do
       )
       acc ++ metadata_content
     end)
-    |> IO.inspect(label: " parse metadata")
   end
 
   defp execute_step(%Step{
@@ -97,7 +96,6 @@ defmodule LogServer.Query.Executor do
         metadata[to_string(key)] == value
       end)
     end)
-    |> IO.inspect(label: "metadata content")
   end
 
   defp execute_step(%Step{
@@ -106,7 +104,6 @@ defmodule LogServer.Query.Executor do
   }) do
     Logger.debug("#{LogServer.Query}: Middle query, total body shard scan: #{length(body_storage_paths)}")
     Task.async_stream(body_storage_paths, fn storage_path ->
-      IO.inspect(storage_path, label: "storage_path123")
       # Bắt buộc sử dụng TaskManager cho hàm load storage này vì bên trong hàm có thể xảy ra race-condition
       TaskManager.do_task({Storage, :download, [storage_path]})
       # Storage.download(storage_path)
@@ -134,13 +131,13 @@ defmodule LogServer.Query.Executor do
       metadata_passed
       |> Task.async_stream(fn %{
         body_path: body_path,
-        body_position: body_position,
+        body_position: {body_offset, body_length},
         metadata: metadata
       } ->
         case Storage.download(
           body_path,
           dest_path: :memory,
-          bytes_range_fetches: body_position
+          bytes_range_fetches: {body_offset, body_offset + body_length}
         ) do
           {:ok, body} ->
             {:ok, %{
