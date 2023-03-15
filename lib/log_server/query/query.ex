@@ -61,13 +61,6 @@ defmodule LogServer.Query do
         }
       },
       %Step{
-        action: :load_body_storage,
-        params: %{
-          metadata_passed: :loading,
-          body_storage_paths: :loading
-        }
-      },
-      %Step{
         action: :query_body_and_rebuild_raw_log,
         params: %{
           metadata_passed: :loading,

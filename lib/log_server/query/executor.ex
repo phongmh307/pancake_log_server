@@ -36,11 +36,8 @@ defmodule LogServer.Query.Executor do
         did_action == :parse_metadata and action == :query_metadata ->
           filled_params = %{params | metadata_content: step_return_value}
           %{step | params: filled_params}
-        did_action == :query_metadata and action == :load_body_storage ->
+        did_action == :query_metadata and action == :query_body_and_rebuild_raw_log ->
           filled_params = %{params | metadata_passed: step_return_value}
-          %{step | params: filled_params}
-        did_action == :load_body_storage and action == :query_body_and_rebuild_raw_log ->
-          filled_params = %{params | body_dest_paths: step_return_value, metadata_passed: did_step.params.metadata_passed}
           %{step | params: filled_params}
         true -> step
       end
@@ -102,7 +99,7 @@ defmodule LogServer.Query.Executor do
     action: :load_body_storage,
     params: %{body_storage_paths: body_storage_paths}
   }) do
-    Logger.debug("#{LogServer.Query}: Middle query, total body shard scan: #{length(body_storage_paths)}")
+    # Logger.debug("#{LogServer.Query}: Middle query, total body shard scan: #{length(body_storage_paths)}")
     Task.async_stream(body_storage_paths, fn storage_path ->
       # Bắt buộc sử dụng TaskManager cho hàm load storage này vì bên trong hàm có thể xảy ra race-condition
       TaskManager.do_task({Storage, :download, [storage_path]})

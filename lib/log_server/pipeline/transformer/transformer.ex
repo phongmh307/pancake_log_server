@@ -247,7 +247,7 @@ defmodule LogServer.Pipeline.Transformer do
     do: Tools.join_storage_path([storage_path, "metadata_file", to_string(key_shard)])
 
   defp generate_key_shards(total_shard) do
-    1..total_shard
+    0..(total_shard - 1)
     |> Enum.to_list()
     |> List.insert_at(-1, @default_key_shard)
   end
