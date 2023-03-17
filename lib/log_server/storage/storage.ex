@@ -6,7 +6,7 @@ defmodule LogServer.Storage do
   @cache_folder(
     if System.get_env("DEV"),
       do: "cache",
-      else: "../data/cache"
+      else: "./data/cache"
   )
 
   def upload(storage_path) do
@@ -15,6 +15,7 @@ defmodule LogServer.Storage do
 
   #output {:ok, path}
   def download(storage_path, opts \\ []) do
+    IO.inspect(storage_path, label: "clgt123")
     dest_path = Keyword.get(opts, :dest_path, :file)
     params = Keyword.delete(opts, :dest_path)
     do_download(storage_path, dest_path, params)
@@ -33,6 +34,7 @@ defmodule LogServer.Storage do
       [@cache_folder]
       |> Kernel.++([project, time_shard, type_file])
       |> Tools.join_storage_path()
+      |> IO.inspect(label: "se quay tro ve")
       |> File.mkdir_p!()
 
       S3.download(storage_path, :file, dest_path: dest_path)

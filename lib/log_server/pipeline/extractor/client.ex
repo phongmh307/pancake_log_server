@@ -10,7 +10,7 @@ defmodule LogServer.Pipeline.Extractor.Client do
   @clients_saved_file (
     if System.get_env("DEV"),
       do: "clients",
-      else: "../data/clients"
+      else: "./data/clients"
   )
 
   def child_spec(_opts) do

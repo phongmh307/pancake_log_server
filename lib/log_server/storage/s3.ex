@@ -40,9 +40,11 @@ defmodule LogServer.Storage.S3 do
 
   def download(storage_path, :file, dest_path: dest_path) do
     storage_path = format_path_by_env(storage_path, System.get_env("DEV"))
+    |> IO.inspect(label: "storage_path123")
     @bucket
     |> ExAws.S3.download_file(storage_path, dest_path)
     |> ExAws.request()
+    |> IO.inspect(label: "result download")
     |> case do
       {:ok, _} ->
         FileSystemManager.set_ttl(dest_path, 3 * @hour)
@@ -69,7 +71,7 @@ defmodule LogServer.Storage.S3 do
       path
     else
       [first, second | _rest] = parts = Path.split(path)
-      if (first == ".." and second == "data") or String.contains?(first, "../data"),
+      if (first == "." and second == "data") or String.contains?(first, "./data"),
         do: parts |> Enum.drop(2) |> Path.join(),
         else: path
         # 1678173600_1678174200

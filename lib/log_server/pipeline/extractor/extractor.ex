@@ -10,7 +10,7 @@ defmodule LogServer.Pipeline.Extractor do
   @storage_folder (
     if System.get_env("DEV"),
       do: "buffer_area",
-      else: "../data/buffer_area"
+      else: "./data/buffer_area"
   )
 
   # Quét log ở các server shard theo thời gian nên các server sẽ cùng

@@ -24,6 +24,7 @@ defmodule LogServer.Query do
   def query(query_struct) do
     query_struct
     |> build_query_plan()
+    |> IO.inspect(label: "query plan")
     |> Executor.execute_plan()
   end
 

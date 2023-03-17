@@ -28,6 +28,7 @@ defmodule LogServer.Query.Executor do
     %Step{action: did_action} = did_step,
     step_return_value
   ) do
+    IO.inspect(did_step, label: "did_step123")
     Enum.map(query_plan, fn step = %Step{action: action, params: params} ->
       cond do
         did_action == :load_metadata_storage and action == :parse_metadata ->
@@ -50,8 +51,8 @@ defmodule LogServer.Query.Executor do
   }) do
     Task.async_stream(metadata_storage_paths, fn storage_path ->
       # Bắt buộc sử dụng TaskManager cho hàm load storage này vì bên trong hàm có thể xảy ra race-condition
-      TaskManager.do_task({Storage, :download, [storage_path]})
-      # Storage.download(storage_path)
+      # TaskManager.do_task({Storage, :download, [storage_path]})
+      Storage.download(storage_path)
     end, timeout: 20_000)
     |> Enum.reduce([], fn {:ok, result}, acc ->
       case result do
@@ -116,7 +117,7 @@ defmodule LogServer.Query.Executor do
   @cache_folder(
     if System.get_env("DEV"),
       do: "cache",
-      else: "../data/cache"
+      else: "./data/cache"
   )
   defp execute_step(%Step{
     action: :query_body_and_rebuild_raw_log,
@@ -124,8 +125,9 @@ defmodule LogServer.Query.Executor do
       metadata_passed: metadata_passed
     }
   }) do
-    {log_content, _} =
+    {log_content, log_count} =
       metadata_passed
+      |> IO.inspect(label: "metadata_passed123")
       |> Task.async_stream(fn %{
         body_path: body_path,
         body_position: {body_offset, body_length},
@@ -162,6 +164,7 @@ defmodule LogServer.Query.Executor do
         end
       end)
 
+    IO.inspect(log_count, label: "log_count123")
     log_content
   end
 end

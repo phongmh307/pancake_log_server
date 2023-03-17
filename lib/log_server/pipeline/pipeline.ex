@@ -9,7 +9,7 @@ defmodule LogServer.Pipeline do
   @storage_folder (
     if System.get_env("DEV"),
       do: "buffer_area",
-      else: "../data/buffer_area"
+      else: "./data/buffer_area"
   )
 
   def open() do
@@ -27,7 +27,7 @@ defmodule LogServer.Pipeline do
       |> Loader.upload()
     end)
 
-    Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
+    # Enum.each(projects, & clear_buffer_area(&1.project, shard_time))
   end
 
   # Thống nhất file name này với Log Client

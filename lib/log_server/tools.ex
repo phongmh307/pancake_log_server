@@ -40,9 +40,9 @@ defmodule LogServer.Tools do
       Path.join(parts)
     else
       [first, second | _rest] = parts
-      if (first == ".." and second == "data") or String.contains?(first, "../data"),
+      if (first == "." and second == "data") or String.contains?(first, "./data"),
         do: Path.join(parts),
-        else: Path.join(["..", "data" | parts])
+        else: Path.join([".", "data" | parts])
 
     end
   end

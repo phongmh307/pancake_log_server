@@ -7,7 +7,7 @@ defmodule LogServer.Storage.FileSystemManager do
   @file_system_ttl (
     if System.get_env("DEV"),
       do: "file_system_ttl",
-      else: "../data/file_system_ttl"
+      else: "./data/file_system_ttl"
   )
   @min 60_000
 
